@@ -1,0 +1,8 @@
+{% extends 'bokehdash/base.html' %}
+{% block content %}
+    <div>
+        {% load static %}
+    </div>
+      <h3>{{ graphname }}</h3>
+      {{server_script|safe}}
+{% endblock %}

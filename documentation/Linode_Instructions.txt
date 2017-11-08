@@ -1,0 +1,169 @@
+########################################
+# Secure the Server
+########################################
+
+# Rebuild as Ubuntu 16.04 LTS
+# Boot
+# Log in as root
+
+# update the machine
+apt-get update
+apt-get upgrade
+apt-get install fail2ban
+vi /etc/ssh/sshd_config
+    PermitRootLogin no
+    PasswordAuthentication no
+    UsePAM no
+apt-get install git-core
+apt-get install virtualenv
+apt-get install gunicorn
+apt-get install nginx
+
+########################################
+# Setting up the user
+########################################/
+
+# create the new deployers group
+/usr/sbin/groupadd deployers
+# back up the sudoers file
+cp /etc/sudoers /etc/sudoers-backup
+# modify the sudo list so the deployers group has sudo privileges
+(cat /etc/sudoers-backup ; echo "%deployers ALL=(ALL) ALL") > /etc/sudoers
+# ensure the appropriate permissions are on the sudoers file
+chmod 0440 /etc/sudoers
+
+# create the new user. be sure to use your own name here
+/usr/sbin/useradd -c "Jonathan Bennett" -m -g deployers deployer1
+# set up a password for the new user. you'll need the password to run sudo commands
+/usr/bin/passwd deployer1
+
+# add the deployer user to the deployers group
+/usr/sbin/usermod -a -G deployers deployer1
+# create a directory for the deployer's public key and authorized_keys file
+mkdir /home/deployer1/.ssh
+
+# create a public/private key pair on your local computer
+# create the authorized_keys file (the public key) on your webserver
+vi /home/deployer1/.ssh/authorized_keys
+
+# change the owner and group of the .ssh directory to deployer
+# and deployers, respectively
+chown -R deployer1 /home/deployer1/.ssh
+chgrp -R deployers /home/deployer1/.ssh
+
+# restart SSH Service
+service ssh reload
+
+# before logging out as root,  check to make sure you can log in as deployer
+# if it works log out of the root SSH session
+
+# from now on, log in as deployer1
+
+# create a deploy key
+mkdir ~/deploy_key
+cd ~/deploy_key
+ssh-keygen -t rsa -b 2048
+
+# save the private key in our current directory ./deploy_key
+# Press enter twice when prompted for a passphrase. We will not use a passphrase on the deploy key.
+
+# add the deploy_key.pub to github
+
+
+########################################
+# Source Control
+########################################
+
+# make sure the deploy key is set up on your github repository
+cd /home/deployer1
+# the next line must point to your personal repository, so replace jonolsu with your github ID
+ssh-agent bash -c 'ssh-add /home/deployer1/deploy_key/deploy_key; git clone git@github.com:jonolsu/BokehDjango.git'
+
+
+########################################
+# Create the Environment
+########################################
+
+mkdir /home/deployer1/envs/
+# determine which version of python3 is installed and name the environment appropriately
+python3 --version
+virtualenv -p python3 /home/deployer1/envs/BokehDjango352
+/bin/bash
+source /home/deployer1/envs/BokehDjango352/bin/activate
+pip install -r /home/deployer1/BokehDjango/documentation/config_files/requirements.txt
+
+
+########################################
+# Setting up the Web Server
+# https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04
+########################################
+
+# set up the firewall
+sudo ufw allow 22
+sudo ufw allow 80
+sudo ufw enable
+
+
+# create gunicorn.service file (gunicorn.service is located in the config_files directory of the repository)
+sudo vi /etc/systemd/system/gunicorn.service
+
+#  start the Gunicorn service we created and enable it so that it starts at boot:
+sudo systemctl start gunicorn
+sudo systemctl enable gunicorn
+
+# Configure Nginx to Proxy Pass to Gunicorn (mysite is located in the config_files directory of the repository)
+# replace the up address with your server's ip address
+sudo vi /etc/nginx/sites-available/mysite
+
+# enable the file
+sudo ln -s /etc/nginx/sites-available/mysite /etc/nginx/sites-enabled
+
+#
+sudo ufw allow 'Nginx Full'
+
+# restart Nginx
+sudo systemctl restart nginx
+
+
+########################################
+# Configuring the Bokeh Server
+########################################
+
+# create bokehserver.service file (bokehserver.service is located in the config_files directory of the repository)
+sudo vi /etc/systemd/system/bokehserver.service
+
+#  start the bokehserver service we created and enable it so that it starts at boot:
+sudo systemctl start bokehserver
+sudo systemctl enable bokehserver
+
+########################################
+# Ready to Go
+########################################
+
+# reboot your system and navigate to your website
+sudo shutdown -r now
+# use the browser to navigate to your website http://45.33.6.39
+# userid is regularuser
+# password is 1234password1234
+# administrator id is admin
+# password is 1234password1234
+
+########################################
+# Other
+########################################
+
+# if you update your Django Application
+cd /home/deployer1/BokehDjango
+ssh-agent bash -c 'ssh-add /home/deployer1/deploy_key/deploy_key; git pull origin master'
+sudo systemctl restart gunicorn
+
+# if you change gunicorn service
+sudo systemctl daemon-reload
+sudo systemctl restart gunicorn
+
+# if you change bokehserver service
+sudo systemctl daemon-reload
+sudo systemctl restart bokehserver
+
+# if you change nginx
+sudo nginx -t && sudo systemctl restart nginx

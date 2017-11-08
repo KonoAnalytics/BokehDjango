@@ -1,0 +1,13 @@
+{% extends 'bokehdash/base.html' %}
+{% block content %}
+    <div>
+        {% load static %}
+        <link rel='stylesheet' href={{cdn_css|safe}} type="text/css"/>
+        <script type="text/javascript" src={{cdn_js|safe}}></script>
+    </div>
+    <div>
+      <h3>{{graphname }}</h3>
+      {{div|safe}}
+      {{js|safe}}
+    </div>
+{% endblock %}

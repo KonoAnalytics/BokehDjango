@@ -1,0 +1,13 @@
+[Unit]
+Description=Bokeh Server
+After=network.target
+
+[Service]
+Environment="BOKEH_SECRET_KEY=kitjOI83DgklnTuUykyHYABBCaV8oItJTZTQqVBav97G"
+User=deployer1
+Group=www-data
+WorkingDirectory=/home/deployer1/BokehDjango/bokehdash/BokehApps
+ExecStart=/home/deployer1/envs/BokehDjango352/bin/bokeh serve sliders.py selection_histogram.py --allow-websocket-origin 45.33.6.39 --address 127.0.0.1 --session-ids external-signed
+
+[Install]
+WantedBy=multi-user.target

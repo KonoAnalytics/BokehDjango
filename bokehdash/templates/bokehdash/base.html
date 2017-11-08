@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <script
+            src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+        <title>Bokeh Server via Django</title>
+    </head>
+
+    <body>
+        <div>
+            <a href="{% url 'logout' %}">logout</a>
+            <hr>
+            <a href="{% url 'boxplot' %}">boxplot</a>
+            <a href="{% url 'sliders' %}">sliders</a>
+            <a href="{% url 'histogram' %}">selection historgram</a>
+            <hr>
+        </div>
+        <main>
+            {% block content %}
+            {% endblock %}
+        </main>
+    </body>
+</html>
