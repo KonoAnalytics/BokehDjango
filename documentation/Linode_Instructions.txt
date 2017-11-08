@@ -2,6 +2,13 @@
 # Secure the Server
 ########################################
 
+# If you decide to host this via Linode and don't already have a Linode account,
+# please consider using the following referral link to register.  This gives me a modest amount of Linode "credit"
+# that will allow me to keep the demo site up and running at http://45.33.6.39
+
+# https://www.linode.com/?r=8b4f4ca1bfe379f086fbacc8dde3a5c138296e48
+# referral code: 8b4f4ca1bfe379f086fbacc8dde3a5c138296e48
+
 # Rebuild as Ubuntu 16.04 LTS
 # Boot
 # Log in as root
