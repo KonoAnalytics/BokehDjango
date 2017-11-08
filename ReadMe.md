@@ -1,11 +1,11 @@
 # Bokeh Server using Django Tutorial
-The intention of this project is to list all of the steps neessary to run static Bokeh plots and interactive
+The intention of this project is to list all of the steps necessary to run static Bokeh plots and interactive
 Bokeh Server plots on the Django web framework.
 
 It includes instructions necessary to launch on a production server.  I used Linode, but the instructions should be
-generic enough to extend to other hosting platforms.
+generic enough to extend to other hosting platforms.  
 
-##Requirements:
+## Requirements:
 * Ubuntu 16.04 LTS
 * Python 3.5.2
 
